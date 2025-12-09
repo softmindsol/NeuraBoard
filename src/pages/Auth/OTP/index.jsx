@@ -1,30 +1,90 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Formik } from "formik";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { toast } from "sonner";
 import { verificationSchema } from "@/validation/authSchemas";
+import { useVerifyOTP, useResendOTP } from "@/hooks/useAuth";
 
 const otpFields = ["d1", "d2", "d3", "d4"];
 
 const VerificationCode = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const inputRefs = useRef([]);
+  const [email, setEmail] = useState("");
+
+  const verifyOTPMutation = useVerifyOTP();
+  const resendOTPMutation = useResendOTP();
+
+  // Get email from navigation state or localStorage
+  useEffect(() => {
+    const emailFromState = location.state?.email;
+    const emailFromStorage = localStorage.getItem("verifyEmail");
+    
+    if (emailFromState) {
+      setEmail(emailFromState);
+    } else if (emailFromStorage) {
+      setEmail(emailFromStorage);
+    } else {
+      // No email found, redirect to signup
+      toast.error("Please sign up first");
+      navigate("/signup");
+    }
+  }, [location, navigate]);
 
   const initialValues = { d1: "", d2: "", d3: "", d4: "" };
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    const code = `${values.d1}${values.d2}${values.d3}${values.d4}`;
-    try {
-      console.log("Verification code:", code);
-      // 👉 yahan actual verify API call karo
-      // await verifyOtpApi(code);
+    const otp = `${values.d1}${values.d2}${values.d3}${values.d4}`;
+    
+    if (!email) {
+      toast.error("Email not found. Please sign up again.");
+      navigate("/signup");
+      return;
+    }
 
-      // ✅ success ke baad login page par redirect
-      navigate("/"); // agar login route /auth/login hai to usko use karo
-    } catch (err) {
-      console.error(err);
-      // optional: error toast waghera
+    try {
+      const response = await verifyOTPMutation.mutateAsync({
+        email,
+        otp,
+      });
+
+      if (response.success) {
+        toast.success(response.message || "Email verified successfully!");
+        // Clear stored email
+        localStorage.removeItem("verifyEmail");
+        // Redirect to login or dashboard
+        navigate("/");
+      }
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Invalid verification code. Please try again.";
+      toast.error(errorMessage);
+      console.error("Verification error:", error);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    if (!email) {
+      toast.error("Email not found. Please sign up again.");
+      return;
+    }
+
+    try {
+      const response = await resendOTPMutation.mutateAsync({ email });
+      if (response.success) {
+        toast.success(response.message || "Verification code resent!");
+      }
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to resend code. Please try again.";
+      toast.error(errorMessage);
     }
   };
 
@@ -144,10 +204,11 @@ const VerificationCode = () => {
               Didn&apos;t get a code?{" "}
               <button
                 type="button"
-                onClick={() => console.log("Resend code")}
-                className="font-semibold text-purple-600"
+                onClick={handleResendOTP}
+                disabled={resendOTPMutation.isPending}
+                className="font-semibold text-purple-600 disabled:opacity-50"
               >
-                Resend
+                {resendOTPMutation.isPending ? "Sending..." : "Resend"}
               </button>
             </p>
           </form>

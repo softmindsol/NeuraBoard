@@ -1,9 +1,17 @@
 import React from "react";
 import { Formik } from "formik";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { signupSchema } from "@/validation/authSchemas";
+import { useSignup } from "@/hooks/useAuth";
 
 const signupFields = [
+  {
+    name: "name",
+    label: "Name",
+    type: "name",
+    placeholder: "Enter your name",
+  },
   {
     name: "email",
     label: "Email",
@@ -19,9 +27,11 @@ const signupFields = [
 ];
 
 const SignUp = () => {
-  const navigate = useNavigate();   // 🔹 navigation hook
+  const navigate = useNavigate();
+  const signupMutation = useSignup();
 
   const initialValues = {
+    name: "",
     email: "",
     password: "",
     termsAccepted: false,
@@ -29,15 +39,27 @@ const SignUp = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      console.log("Signup form values:", values);
-      // 👉 yahan actual API call / dispatch waghera karo
-      // await signupApi(values);
+      const response = await signupMutation.mutateAsync({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        termsAccepted: values.termsAccepted,
+      });
 
-      // ✅ success ke baad verify page par le jao
-      navigate("/verify"); // agar tumhari route /auth/verify hai to usko use karo
+      if (response.success) {
+        toast.success(response.message || "Account created successfully!");
+        // Store email in localStorage as backup
+        localStorage.setItem("verifyEmail", values.email);
+        // Pass email via navigation state
+        navigate("/verify", { state: { email: values.email } });
+      }
     } catch (error) {
-      console.error(error);
-      // optional: error toast, etc.
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to create account. Please try again.";
+      toast.error(errorMessage);
+      console.error("Signup error:", error);
     } finally {
       setSubmitting(false);
     }

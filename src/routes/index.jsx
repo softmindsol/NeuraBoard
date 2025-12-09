@@ -18,16 +18,16 @@ import ResetPassword from "@/pages/Auth/ResetPassword";
 const routes = [
   // ---------- AUTH / PUBLIC (Login, Signup, Forgot...) ----------
   {
-    path: PUBLIC_ROUTES.login,          // "/"
-    element: <AuthLayout />,            // left/right layout with <Outlet />
+    path: PUBLIC_ROUTES.login,          
+    element: <AuthLayout />,            
     children: [
       {
-        index: true,                    // same path "/" -> Login
+        index: true,                    
         element: <Login />,
       },
       // yahan baad mein:
      { path: "signup", element: <SignUp /> },
-           { path: "verify", element: <VerificationCode /> }, //  /verify
+           { path: "verify", element: <VerificationCode /> }, 
              { path: "forgot-password", element: <ForgotPassword /> },
       { path: "reset-password", element: <ResetPassword /> },
 
@@ -37,7 +37,7 @@ const routes = [
 
   // ---------- PRIVATE / APP LAYOUT ----------
   {
-    element: <AppLayout />,             // main dashboard shell
+    element: <AppLayout />,             
     children: [
       {
         path: PATHS.clients,

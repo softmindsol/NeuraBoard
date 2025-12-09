@@ -2,7 +2,9 @@
 import React from "react";
 import { Formik } from "formik";
 import { loginSchema } from "@/validation/authSchemas";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { useLogin } from "@/hooks/useAuth";
 
 const loginFields = [
   {
@@ -20,15 +22,36 @@ const loginFields = [
 ];
 
 const LoginPage = () => {
+  const navigate = useNavigate();
+  const loginMutation = useLogin();
+
   const initialValues = {
     email: "",
     password: "",
   };
 
-  const handleSubmit = (values, { setSubmitting }) => {
-    console.log("Login form values:", values);
-    // yahan API call / dispatch / etc
-    setTimeout(() => setSubmitting(false), 500);
+  const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+      const response = await loginMutation.mutateAsync({
+        email: values.email,
+        password: values.password,
+      });
+
+      if (response.success) {
+        toast.success(response.message || "Login successful!");
+        // Redirect to dashboard or home
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Login failed. Please check your credentials.";
+      toast.error(errorMessage);
+      console.error("Login error:", error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
