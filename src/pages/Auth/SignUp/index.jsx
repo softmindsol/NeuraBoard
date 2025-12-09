@@ -1,10 +1,9 @@
-// src/pages/auth/LoginPage.jsx
 import React from "react";
 import { Formik } from "formik";
-import { loginSchema } from "@/validation/authSchemas";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { signupSchema } from "@/validation/authSchemas";
 
-const loginFields = [
+const signupFields = [
   {
     name: "email",
     label: "Email",
@@ -19,16 +18,29 @@ const loginFields = [
   },
 ];
 
-const LoginPage = () => {
+const SignUp = () => {
+  const navigate = useNavigate();   // 🔹 navigation hook
+
   const initialValues = {
     email: "",
     password: "",
+    termsAccepted: false,
   };
 
-  const handleSubmit = (values, { setSubmitting }) => {
-    console.log("Login form values:", values);
-    // yahan API call / dispatch / etc
-    setTimeout(() => setSubmitting(false), 500);
+  const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+      console.log("Signup form values:", values);
+      // 👉 yahan actual API call / dispatch waghera karo
+      // await signupApi(values);
+
+      // ✅ success ke baad verify page par le jao
+      navigate("/verify"); // agar tumhari route /auth/verify hai to usko use karo
+    } catch (error) {
+      console.error(error);
+      // optional: error toast, etc.
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -36,19 +48,19 @@ const LoginPage = () => {
       {/* Heading + link */}
       <div className="mb-8">
         <h1 className="text-3xl font-extrabold text-gray-900 md:text-4xl">
-          Welcome Back
+          Create Account
         </h1>
         <p className="mt-2 text-sm text-gray-500">
-          Don&apos;t have an account?{" "}
-          <Link to="/signup" className="font-semibold text-purple-600">
-            Sign Up
+          Already have an account?{" "}
+          <Link to="/" className="font-semibold text-purple-600">
+            Login
           </Link>
         </p>
       </div>
 
       <Formik
         initialValues={initialValues}
-        validationSchema={loginSchema}
+        validationSchema={signupSchema}
         onSubmit={handleSubmit}
       >
         {({
@@ -59,10 +71,11 @@ const LoginPage = () => {
           handleBlur,
           handleSubmit,
           isSubmitting,
+          setFieldValue,
         }) => (
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Dynamic fields */}
-            {loginFields.map((field) => (
+            {/* Dynamic fields (Email, Password) */}
+            {signupFields.map((field) => (
               <div key={field.name} className="space-y-1">
                 <label
                   htmlFor={field.name}
@@ -74,8 +87,8 @@ const LoginPage = () => {
                   id={field.name}
                   name={field.name}
                   type={field.type}
-                  autoComplete={field.name}
                   placeholder={field.placeholder}
+                  autoComplete={field.name}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values[field.name]}
@@ -95,24 +108,52 @@ const LoginPage = () => {
               </div>
             ))}
 
-            {/* Forgot password link */}
-            <div className="flex justify-end">
-              <Link
-                to="/forgot-password"
-                className="text-xs text-purple-600 hover:underline"
+            {/* Terms checkbox */}
+            <div className="flex items-start gap-2 text-xs">
+              <input
+                id="termsAccepted"
+                name="termsAccepted"
+                type="checkbox"
+                checked={values.termsAccepted}
+                onChange={(e) =>
+                  setFieldValue("termsAccepted", e.target.checked)
+                }
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+              />
+              <label
+                htmlFor="termsAccepted"
+                className="leading-snug text-gray-600"
               >
-                Forgot Password
-              </Link>
+                Agree to our{" "}
+                <button
+                  type="button"
+                  className="text-purple-600 underline underline-offset-2"
+                >
+                  Terms of Service
+                </button>{" "}
+                and{" "}
+                <button
+                  type="button"
+                  className="text-purple-600 underline underline-offset-2"
+                >
+                  Privacy Policy
+                </button>
+              </label>
             </div>
+            {errors.termsAccepted && touched.termsAccepted && (
+              <p className="-mt-3 text-xs text-red-500">
+                {errors.termsAccepted}
+              </p>
+            )}
 
-            {/* Login button */}
+            {/* Sign Up button */}
             <button
               type="submit"
               disabled={isSubmitting}
               className="mt-2 w-full rounded-xl bg-purple-600 py-2.5 text-sm font-semibold text-white
                          shadow-md hover:bg-purple-700 transition disabled:opacity-70"
             >
-              {isSubmitting ? "Logging in..." : "Login"}
+              {isSubmitting ? "Creating account..." : "Sign Up"}
             </button>
 
             {/* Divider */}
@@ -141,4 +182,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignUp;

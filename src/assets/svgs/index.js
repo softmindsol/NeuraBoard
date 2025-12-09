@@ -31,8 +31,14 @@ import ProperGoods from "./ProperGoods.svg";
 import CotsworldCoffeeCo from "./CotsworldCoffeeCo.svg";
 import IntroducingNewWidgets from "./IntroducingNewWidgets.svg";
 import RoyalPayliTemplatePro from "./RoyalPayliTemplatePro.svg";
+import AuthBg from "./authbg.svg";
+import AuthImg from "./authimage.svg"
+import Authlogo from "./authlogo.svg"
 
 export {
+  Authlogo,
+  AuthImg,
+  AuthBg,
   Receipttemplates,
   Inventory,
   POS,

@@ -1,43 +1,40 @@
 import React from "react";
 import { Formik } from "formik";
-import { resetPasswordSchema } from "@/validation/authSchemas";
+import { forgotPasswordSchema } from "@/validation/authSchemas";
 
-const resetFields = [
+const forgotFields = [
   {
-    name: "password",
-    label: "Enter new Password",
-    type: "password",
-    placeholder: "Enter new password",
-  },
-  {
-    name: "confirmPassword",
-    label: "Confirm new Password",
-    type: "password",
-    placeholder: "Re-enter new password",
+    name: "email",
+    label: "Email",
+    type: "email",
+    placeholder: "Enter your email",
   },
 ];
 
-const ResetPassword = () => {
-  const initialValues = { password: "", confirmPassword: "" };
+const ForgotPassword = () => {
+  const initialValues = { email: "" };
 
   const handleSubmit = (values, { setSubmitting }) => {
-    console.log("Reset password:", values);
-    // yahan API call karo (reset password with token, etc.)
+    console.log("Forgot password email:", values.email);
+    // yahan API call karo (send reset link)
     setTimeout(() => setSubmitting(false), 400);
   };
 
   return (
     <div className="w-full">
-      {/* Heading */}
+      {/* Heading + description */}
       <div className="mb-10">
         <h1 className="text-3xl font-extrabold text-gray-900 md:text-4xl">
-          Reset Password
+          Forgot Password
         </h1>
+        <p className="mt-2 text-sm text-gray-500">
+          We&apos;ll send you a link to your email to reset your password.
+        </p>
       </div>
 
       <Formik
         initialValues={initialValues}
-        validationSchema={resetPasswordSchema}
+        validationSchema={forgotPasswordSchema}
         onSubmit={handleSubmit}
       >
         {({
@@ -50,7 +47,7 @@ const ResetPassword = () => {
           isSubmitting,
         }) => (
           <form onSubmit={handleSubmit} className="space-y-6">
-            {resetFields.map((field) => (
+            {forgotFields.map((field) => (
               <div key={field.name} className="space-y-1">
                 <label
                   htmlFor={field.name}
@@ -63,7 +60,7 @@ const ResetPassword = () => {
                   name={field.name}
                   type={field.type}
                   placeholder={field.placeholder}
-                  autoComplete="new-password"
+                  autoComplete={field.name}
                   value={values[field.name]}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -75,7 +72,6 @@ const ResetPassword = () => {
                         : "border-gray-200"
                     }`}
                 />
-                {/* error text (specially for password length like design) */}
                 {errors[field.name] && touched[field.name] && (
                   <p className="text-xs text-red-500">
                     {errors[field.name]}
@@ -84,15 +80,27 @@ const ResetPassword = () => {
               </div>
             ))}
 
-            {/* Change Password button */}
+            {/* Send Link button */}
             <button
               type="submit"
               disabled={isSubmitting}
               className="mt-2 w-full rounded-xl bg-purple-600 py-2.5 text-sm font-semibold text-white
                          shadow-md hover:bg-purple-700 transition disabled:opacity-70"
             >
-              {isSubmitting ? "Changing..." : "Change Password"}
+              {isSubmitting ? "Sending..." : "Send Link"}
             </button>
+
+            {/* Resend text */}
+            <p className="mt-3 text-xs text-gray-500">
+              Didn&apos;t get an email?{" "}
+              <button
+                type="button"
+                onClick={() => console.log("Resend email")}
+                className="font-semibold text-purple-600"
+              >
+                Resend
+              </button>
+            </p>
           </form>
         )}
       </Formik>
@@ -100,4 +108,4 @@ const ResetPassword = () => {
   );
 };
 
-export default ResetPassword;
+export default ForgotPassword;

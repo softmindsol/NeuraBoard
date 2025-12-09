@@ -6,6 +6,7 @@ const PATHS = {
 };
 export const PUBLIC_ROUTES = {
   login: "/",
+  signup: "/signup"
   
 };
 export default PATHS;

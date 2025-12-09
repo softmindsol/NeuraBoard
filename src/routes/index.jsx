@@ -1,39 +1,55 @@
+// src/routes/index.jsx
 import { useRoutes } from "react-router-dom";
 import PATHS, { PUBLIC_ROUTES } from "./path";
-import AppLayout from "../layout/AppLayout"; // Your AppLayout component
-import ClientsList from "../pages/SuperAdminDashboard/Clients"; // Your ClientsList component
+
+import AppLayout from "../layout/AppLayout";
+import AuthLayout from "../layout/AuthLayout";          // 🔹 naya layout
+
+import ClientsList from "../pages/SuperAdminDashboard/Clients";
 import Dashboard from "../pages/SuperAdminDashboard/Dashboard";
-import DefaultLayout from "../layout/DefaultLayout"; // Auth/Public
-import Login from "../pages/Auth/Login/index"
 import InventoryManagement from "@/pages/SuperAdminDashboard/Inventory";
 
+import Login from "../pages/Auth/Login";                // tumhara Login/index.jsx
+import SignUp from "@/pages/Auth/SignUp";
+import VerificationCode from "@/pages/Auth/OTP";
+import ForgotPassword from "@/pages/Auth/ForgotPassword";
+import ResetPassword from "@/pages/Auth/ResetPassword";
+
 const routes = [
-   // ---------- AUTH / PUBLIC ----------
+  // ---------- AUTH / PUBLIC (Login, Signup, Forgot...) ----------
   {
-    path: "/",
-    element: <DefaultLayout />,
+    path: PUBLIC_ROUTES.login,          // "/"
+    element: <AuthLayout />,            // left/right layout with <Outlet />
     children: [
       {
-        path: PUBLIC_ROUTES.login,
-        element: (
-            <Login />
-        ),
+        index: true,                    // same path "/" -> Login
+        element: <Login />,
       },
-     
+      // yahan baad mein:
+     { path: "signup", element: <SignUp /> },
+           { path: "verify", element: <VerificationCode /> }, //  /verify
+             { path: "forgot-password", element: <ForgotPassword /> },
+      { path: "reset-password", element: <ResetPassword /> },
+
+      // { path: "forgot-password", element: <ForgotPassword /> },
     ],
   },
+
+  // ---------- PRIVATE / APP LAYOUT ----------
   {
-    path: "/",
-    element: <AppLayout />,
+    element: <AppLayout />,             // main dashboard shell
     children: [
-      { path: PATHS.clients, 
-        element: <ClientsList /> 
+      {
+        path: PATHS.clients,
+        element: <ClientsList />,
       },
-        { path: PATHS.dashboard, 
-        element: <Dashboard /> 
+      {
+        path: PATHS.dashboard,
+        element: <Dashboard />,
       },
-      { path: PATHS.inventory, 
-        element: <InventoryManagement /> 
+      {
+        path: PATHS.inventory,
+        element: <InventoryManagement />,
       },
     ],
   },
