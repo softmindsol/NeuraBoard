@@ -14,6 +14,7 @@ import SignUp from "@/pages/Auth/SignUp";
 import VerificationCode from "@/pages/Auth/OTP";
 import ForgotPassword from "@/pages/Auth/ForgotPassword";
 import ResetPassword from "@/pages/Auth/ResetPassword";
+import OnboardingPage from "@/pages/onboarding";
 
 const routes = [
   // ---------- AUTH / PUBLIC (Login, Signup, Forgot...) ----------
@@ -30,11 +31,15 @@ const routes = [
            { path: "verify", element: <VerificationCode /> }, 
              { path: "forgot-password", element: <ForgotPassword /> },
       { path: "reset-password", element: <ResetPassword /> },
+   
 
       // { path: "forgot-password", element: <ForgotPassword /> },
     ],
   },
-
+   {
+  path: "/onboarding",
+  element: <OnboardingPage />,
+},
   // ---------- PRIVATE / APP LAYOUT ----------
   {
     element: <AppLayout />,             
